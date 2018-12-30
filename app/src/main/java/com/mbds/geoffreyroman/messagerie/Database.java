@@ -2,17 +2,31 @@ package com.mbds.geoffreyroman.messagerie;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
+import android.util.JsonReader;
+import android.util.JsonWriter;
+import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class Database {
     Context ctx;
     private static Database INSTANCE;
-
+    String id = "-1";
     private Database(Context ctx) {
         this.ctx = ctx;
     }
@@ -22,6 +36,16 @@ public class Database {
             INSTANCE = new Database(ctx);
         }
         return INSTANCE;
+    }
+
+    public final class User {
+        private User() {}
+        public String access_token;
+        public class FeedUser implements BaseColumns {
+            public static final String TABLE_NAME = "User";
+            public static final String COLUMN_NAME_LOGIN = "login";
+            public static final String COLUMN_NAME_PASSWORD = "Password";
+        }
     }
 
     public final class ContactContract{
@@ -91,5 +115,39 @@ public class Database {
         return persons;
     }
 
+
+    public String checkUser(String login, String password, Callback callback) {
+
+        ApiService api = new ApiService();
+        JSONObject jo = null;
+
+        try {
+            jo = new JSONObject();
+            jo.put("username", login);
+            jo.put("password", password);
+        } catch (JSONException JsonE) {
+            JsonE.printStackTrace();
+        }
+        String params = jo.toString();
+        try {
+            api.login(params, callback);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return id;
+    }
+
+    public void createUser(String login, String password) {
+        ContactHelper mDbHelper = new ContactHelper(ctx);
+
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(User.FeedUser.COLUMN_NAME_LOGIN, login);
+        values.put(User.FeedUser.COLUMN_NAME_PASSWORD, password);
+
+        db.insert(User.FeedUser.TABLE_NAME, null, values);
+    }
 
 }
