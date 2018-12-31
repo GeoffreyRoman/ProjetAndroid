@@ -93,11 +93,12 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 String jsonData = response.body().string();
                                 JSONObject userInfoJson = new JSONObject(jsonData);
+                                db.setUserInfo(userInfoJson);
                                 // JSONArray Jarray = userInfoJson.getJSONArray("access_token");
                                 setMessage("Connexion réussite");
                                 Intent intent = new Intent(LoginActivity.this,
                                         HomeActivity.class);
-                                intent.putExtra("UserInfo", userInfoJson.toString());
+                                // intent.putExtra("database",  db.getINSTANCE());
                                 LoginActivity.this.startActivity(intent);
                             }catch (JSONException e){
                                 e.printStackTrace();

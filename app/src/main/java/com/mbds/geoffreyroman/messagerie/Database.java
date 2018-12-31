@@ -10,11 +10,13 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,38 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class Database {
+public class Database implements Serializable {
+
+    public static class UserInfo {
+        JSONObject userInfoJson;
+
+        UserInfo(JSONObject userInfoJson) {
+            this.userInfoJson = userInfoJson;
+        }
+
+        public String get(String attribut) {
+            try {
+                String Jarray = userInfoJson.getString(attribut);
+                return Jarray;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+
+    UserInfo userInfo;
     Context ctx;
+
+    public void setUserInfo(JSONObject userInfoJson) {
+        this.userInfo = new UserInfo(userInfoJson);
+    }
+
+    public static Database getINSTANCE() {
+        return INSTANCE;
+    }
+
     private static Database INSTANCE;
     String id = "-1";
 
@@ -51,6 +83,7 @@ public class Database {
             public static final String COLUMN_NAME_PASSWORD = "Password";
         }
     }
+
 
     public final class ContactContract {
         private ContactContract() {
