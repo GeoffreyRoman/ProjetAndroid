@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -33,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = (EditText) findViewById(R.id.passwordEditText);
         register = (TextView) findViewById(R.id.registerLink);
 
-        loginButton.setOnClickListener(new View.OnClickListener(){
+        loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -41,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        register.setOnClickListener(new View.OnClickListener(){
+        register.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -52,43 +56,58 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    void login(){
+    private void setMessage(final String message_) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TextView message = (TextView) findViewById(R.id.loginMessage);
+                message.setText(message_);
+                if(message_.equals("Bad Id")){
+                    Button loginButton = (Button) findViewById(R.id.loginButton);
+                    loginButton.setBackgroundColor(Color.RED);
+                }
+            }
+        });
+    }
+
+    void login() {
         db.checkUser(usernameEditText.getText().toString(), passwordEditText.getText().toString(),
-                    new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            // TODO diplay error message
-                            loginButton.setBackgroundColor(Color.RED);
-                            Toast toast = Toast.makeText(getApplicationContext(),
-                                    "Bad ID",
-                                    Toast.LENGTH_SHORT);
+                new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        // TODO diplay error message
+                        loginButton.setBackgroundColor(Color.RED);
+                        Toast toast = Toast.makeText(getApplicationContext(),
+                                "Bad ID",
+                                Toast.LENGTH_SHORT);
 
-                            toast.show();
-                        }
+                        toast.show();
+                    }
 
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            System.out.println("GOOOOD");
-                            System.out.println(response);
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        System.out.println("GOOOOD");
+                        System.out.println(response);
 
-                            if (response.isSuccessful()) {
-                                String res = response.body().string();
+                        if (response.isSuccessful()) {
+                            try {
+                                String jsonData = response.body().string();
+                                JSONObject userInfoJson = new JSONObject(jsonData);
+                                // JSONArray Jarray = userInfoJson.getJSONArray("access_token");
+                                setMessage("Connexion réussite");
                                 Intent intent = new Intent(LoginActivity.this,
                                         HomeActivity.class);
+                                intent.putExtra("UserInfo", userInfoJson.toString());
                                 LoginActivity.this.startActivity(intent);
-                            } else {
-                                // TODO diplay error message
-                                loginButton.setBackgroundColor(Color.RED);
-                                Toast toast = Toast.makeText(getApplicationContext(),
-                                        "Bad ID",
-                                        Toast.LENGTH_SHORT);
-
-                                toast.show();
-
+                            }catch (JSONException e){
+                                e.printStackTrace();
                             }
+                        } else {
+                            setMessage("Bad Id");
                         }
                     }
-                    );
+                }
+        );
 
     }
 
