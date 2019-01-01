@@ -10,11 +10,13 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,24 +25,58 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
-public class Database {
+public class Database implements Serializable {
+
+    public static class UserInfo {
+        JSONObject userInfoJson;
+
+        UserInfo(JSONObject userInfoJson) {
+            this.userInfoJson = userInfoJson;
+        }
+
+        public String get(String attribut) {
+            try {
+                String Jarray = userInfoJson.getString(attribut);
+                return Jarray;
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
+
+    UserInfo userInfo;
     Context ctx;
+
+    public void setUserInfo(JSONObject userInfoJson) {
+        this.userInfo = new UserInfo(userInfoJson);
+    }
+
+    public static Database getINSTANCE() {
+        return INSTANCE;
+    }
+
     private static Database INSTANCE;
     String id = "-1";
+
     private Database(Context ctx) {
         this.ctx = ctx;
     }
 
-    public static Database getInstance(Context ctx){
-        if(INSTANCE == null){
+    public static Database getInstance(Context ctx) {
+        if (INSTANCE == null) {
             INSTANCE = new Database(ctx);
         }
         return INSTANCE;
     }
 
     public final class User {
-        private User() {}
+        private User() {
+        }
+
         public String access_token;
+
         public class FeedUser implements BaseColumns {
             public static final String TABLE_NAME = "User";
             public static final String COLUMN_NAME_LOGIN = "login";
@@ -48,18 +84,19 @@ public class Database {
         }
     }
 
-    public final class ContactContract{
-        private ContactContract() {}
-        public class FeedContact implements BaseColumns
-        {
+
+    public final class ContactContract {
+        private ContactContract() {
+        }
+
+        public class FeedContact implements BaseColumns {
             public static final String TABLE_NAME = "Contact";
             public static final String COLUMN_NAME_LASTNAME = "Nom";
             public static final String COLUMN_NAME_FIRSTNAME = "Prenom";
         }
     }
 
-    public void addPerson(String name,String lname)
-    {
+    public void addPerson(String name, String lname) {
         // Gets the data repository in write mode
         ContactHelper mDbHelper = new ContactHelper(ctx);
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -74,9 +111,7 @@ public class Database {
     }
 
 
-
-    public List<Person> readPerson()
-    {
+    public List<Person> readPerson() {
         ContactHelper mDbHelper = new ContactHelper(ctx);
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
         String[] projection = {
@@ -103,12 +138,11 @@ public class Database {
         );
 
         List persons = new ArrayList<Person>();
-        while(cursor.moveToNext())
-        {
+        while (cursor.moveToNext()) {
             long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(ContactContract.FeedContact._ID));
             String nom = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_LASTNAME));
             String prenom = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_FIRSTNAME));
-            persons.add(new Person(nom,prenom));
+            persons.add(new Person(nom, prenom));
         }
         cursor.close();
 
@@ -138,8 +172,8 @@ public class Database {
         return id;
     }
 
-    public void createUser(String login, String password) {
-        ContactHelper mDbHelper = new ContactHelper(ctx);
+    public void createUser(String username, String password, Callback callback) {
+       /* ContactHelper mDbHelper = new ContactHelper(ctx);
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
@@ -148,6 +182,26 @@ public class Database {
         values.put(User.FeedUser.COLUMN_NAME_PASSWORD, password);
 
         db.insert(User.FeedUser.TABLE_NAME, null, values);
+        */
+
+        JSONObject jo = null;
+
+        try {
+            jo = new JSONObject();
+            jo.put("username", username);
+            jo.put("password", password);
+        } catch (JSONException JsonE) {
+            JsonE.printStackTrace();
+        }
+
+        String params = jo.toString();
+        ApiService api = new ApiService();
+        try {
+            api.createUser(params, callback);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

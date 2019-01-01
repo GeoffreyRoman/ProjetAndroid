@@ -22,6 +22,7 @@ public class HomeActivity extends AppCompatActivity implements iCallable{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
 
+
         frag1 = (View) findViewById(R.id.frag1);
         frag2 = (View) findViewById(R.id.frag2);
         contactFragment = new ContactFragment();
@@ -52,6 +53,15 @@ public class HomeActivity extends AppCompatActivity implements iCallable{
                 handleSendText(intent); // Handle text being sent
             }
         }
+
+        //Database database = (Database) intent.getSerializableExtra("database");
+        System.out.println("USERNAME : -----> ");
+        String username = Database.getINSTANCE().userInfo.get("username");
+        System.out.println(username);
+        System.out.println("Token : -----> ");
+        String token = Database.getINSTANCE().userInfo.get("access_token");
+        System.out.println(token);
+
     }
 
     void handleSendText(Intent intent) {
