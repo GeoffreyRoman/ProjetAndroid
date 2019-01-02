@@ -46,8 +46,20 @@ public class Database implements Serializable {
     }
 
 
+
+    JSONArray JsonMessageArray;
+
     UserInfo userInfo;
     Context ctx;
+
+
+    public JSONArray getJsonMessageArray() {
+        return this.JsonMessageArray;
+    }
+
+    public void setJsonMessageArray(JSONArray JsonMessageArray) {
+        this.JsonMessageArray = JsonMessageArray;
+    }
 
     public void setUserInfo(JSONObject userInfoJson) {
         this.userInfo = new UserInfo(userInfoJson);

@@ -44,5 +44,16 @@ public class ApiService {
         return call;
     }
 
+    Call getMessages(String token, Callback callback) throws IOException{
+        Request request = new Request.Builder()
+                .url(BASE_URL + "api/fetchMessages")
+                .addHeader("Authorization","Bearer " + token)
+                .get()
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+        return call;
+    }
+
 
 }

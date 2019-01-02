@@ -39,16 +39,26 @@
         tools:layout_editor_absoluteX="26dp"
         tools:layout_editor_absoluteY="404dp">
 
-        <TextView
-            android:id="@+id/messageTextView"
-            android:layout_width="343dp"
-            android:layout_height="58dp"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewMessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <Button
+            android:id="@+id/buttonSend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Button" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:ems="10"
-            android:inputType="textPersonName"
-            android:text="Message"
-            android:textColor="#333"
-            tools:layout_editor_absoluteX="4dp"
-            tools:layout_editor_absoluteY="542dp" />
+            android:inputType="textMultiLine" />
+
 
     </LinearLayout>
-    </LinearLayout>
+
+
+</LinearLayout>

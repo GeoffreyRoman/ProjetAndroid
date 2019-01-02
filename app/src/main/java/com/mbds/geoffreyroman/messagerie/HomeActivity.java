@@ -8,6 +8,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+
 public class HomeActivity extends AppCompatActivity implements iCallable{
     View frag1;
     View frag2;
@@ -62,7 +68,10 @@ public class HomeActivity extends AppCompatActivity implements iCallable{
         String token = Database.getINSTANCE().userInfo.get("access_token");
         System.out.println(token);
 
+
+
     }
+
 
     void handleSendText(Intent intent) {
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);

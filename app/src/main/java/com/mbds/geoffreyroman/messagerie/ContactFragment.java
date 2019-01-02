@@ -18,8 +18,18 @@ package com.mbds.geoffreyroman.messagerie;
         import android.widget.Button;
         import android.widget.TextView;
 
+        import org.json.JSONArray;
+        import org.json.JSONException;
+        import org.json.JSONObject;
+
+        import java.io.IOException;
         import java.util.ArrayList;
         import java.util.List;
+        import java.util.TreeSet;
+
+        import okhttp3.Call;
+        import okhttp3.Callback;
+        import okhttp3.Response;
 
 public class ContactFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -27,19 +37,83 @@ public class ContactFragment extends Fragment {
     TextView contactTextView;
     iCallable mCallback;
     Button changeTextButton;
+    String JsonMessages;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        if(JsonMessages == null) {
+            getMessage();
+        }
+
         contacts = new ArrayList<>();
-        contacts.add("Issoufi");
-        contacts.add("Robin");
-        contacts.add("Selma");
-        contacts.add("Agnieska");
+
+
 
 
         final View view = inflater.inflate(R.layout.contacts, container, false);
 
         return view;
+
+    }
+
+
+    void getMessage(){
+
+        String token = Database.getINSTANCE().userInfo.get("access_token");
+        ApiService api = new ApiService();
+        try{
+            api.getMessages(token,
+                    new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            System.out.println("Echec de l'envoie");
+
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            System.out.println("Envoie reussi");
+
+
+                            if (response.isSuccessful()) {
+                                try {
+                                    String jsonData = response.body().string();
+                                    JsonMessages = jsonData;
+                                    getContacts();
+
+                                }
+                                catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    void getContacts(){
+        System.out.println("Response : ");
+        TreeSet<String> setAuteurs = new TreeSet<String>();
+        try {
+            JSONArray JsonMessageArray = new JSONArray(this.JsonMessages);
+            Database.getINSTANCE().setJsonMessageArray(JsonMessageArray);
+            for(int x = 0;x < JsonMessageArray.length(); x++){
+                JSONObject message = (JSONObject) JsonMessageArray.get(x);
+                setAuteurs.add(message.get("author").toString());
+            }
+            System.out.println(setAuteurs);
+            contacts = new ArrayList<>();
+            contacts.addAll(setAuteurs);
+            populateRecycleView();
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -57,7 +131,14 @@ public class ContactFragment extends Fragment {
 
         //puis créer un MyAdapter, lui fournir notre liste de villes.
         //cet adapter servira à remplir notre recyclerview
+
+
+
+    }
+
+    void populateRecycleView(){
         recyclerView.setAdapter(new MyAdapter(contacts));
+
 
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
@@ -85,7 +166,6 @@ public class ContactFragment extends Fragment {
 
             }
         });
-
     }
 
     @Override
