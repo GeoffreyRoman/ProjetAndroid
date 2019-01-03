@@ -6,59 +6,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorAccent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
+
+
+        <TextView
+            android:id="@+id/testText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackground"
+            android:padding="20dp"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textStyle="bold"
+            tools:text="Issoufi"
+            android:layout_weight="1"
+            />
+
+
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="343dp"
+            android:layout_height="0dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Message"
+            android:textColor="#333"
+            tools:layout_editor_absoluteX="4dp"
+            tools:layout_editor_absoluteY="542dp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="24" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_weight="1"
 
-            <!-- Les CardView agissent comme des FrameLayout,
-             pour avoir une organisation verticale nous devons
-             donc rajouter un LinearLayout -->
-
-
-            <TextView
-                android:id="@+id/testText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?android:selectableItemBackground"
-                android:padding="20dp"
-                tools:text="Issoufi"
-                android:fontFamily="sans-serif"
-                android:textColor="#333"
-                android:textSize="18sp" />
-
-        </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="26dp"
-        tools:layout_editor_absoluteY="404dp">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerViewMessage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <Button
-            android:id="@+id/buttonSend"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button" />
+            >
 
         <EditText
             android:id="@+id/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="241dp"
+            android:layout_height="match_parent"
+
+            android:layout_weight="1"
             android:ems="10"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine">
+
+        </EditText>
+
+        <Button
+            android:id="@+id/buttonSend"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:baselineAligned="false"
+            android:text="Button" />
+
+        </LinearLayout>
 
 
     </LinearLayout>
 
 
-</LinearLayout>
+

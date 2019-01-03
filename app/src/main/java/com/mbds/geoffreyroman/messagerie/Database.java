@@ -2,24 +2,19 @@ package com.mbds.geoffreyroman.messagerie;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import android.util.JsonReader;
-import android.util.JsonWriter;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -52,6 +47,43 @@ public class Database implements Serializable {
     UserInfo userInfo;
     Context ctx;
 
+
+    public ArrayList<String> getContacts(){
+        System.out.println("Response : ");
+        TreeSet<String> setAuteurs = new TreeSet<String>();
+        try {
+            Database.getINSTANCE().setJsonMessageArray(JsonMessageArray);
+            for(int x = 0;x < JsonMessageArray.length(); x++){
+                JSONObject message = (JSONObject) JsonMessageArray.get(x);
+                setAuteurs.add(message.get("author").toString());
+            }
+            System.out.println(setAuteurs);
+            ArrayList<String> contacts = new ArrayList<>();
+            contacts.addAll(setAuteurs);
+
+
+            return contacts;
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
+    }
+
+    public static void getMessage(Callback callback){
+
+        String token = Database.getINSTANCE().userInfo.get("access_token");
+        ApiService api = new ApiService();
+        try{
+            api.getMessages(token,callback);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public JSONArray getJsonMessageArray() {
         return this.JsonMessageArray;

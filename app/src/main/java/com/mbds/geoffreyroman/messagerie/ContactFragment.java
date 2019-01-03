@@ -7,6 +7,7 @@ package com.mbds.geoffreyroman.messagerie;
         import android.content.res.Configuration;
         import android.graphics.Color;
         import android.os.Bundle;
+        import android.provider.ContactsContract;
         import android.support.annotation.Nullable;
         import android.support.v7.app.AppCompatActivity;
         import android.support.v7.widget.LinearLayoutManager;
@@ -37,12 +38,18 @@ public class ContactFragment extends Fragment {
     TextView contactTextView;
     iCallable mCallback;
     Button changeTextButton;
-    String JsonMessages;
+    JSONArray JsonMessages;
+
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         if(JsonMessages == null) {
-            getMessage();
+            Database.getMessage(initialiseContacts);
+
+
+
         }
 
         contacts = new ArrayList<>();
@@ -57,65 +64,35 @@ public class ContactFragment extends Fragment {
     }
 
 
-    void getMessage(){
 
-        String token = Database.getINSTANCE().userInfo.get("access_token");
-        ApiService api = new ApiService();
-        try{
-            api.getMessages(token,
-                    new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            System.out.println("Echec de l'envoie");
+        Callback initialiseContacts = new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+            System.out.println("Echec de l'envoie");
 
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            System.out.println("Envoie reussi");
-
-
-                            if (response.isSuccessful()) {
-                                try {
-                                    String jsonData = response.body().string();
-                                    JsonMessages = jsonData;
-                                    getContacts();
-
-                                }
-                                catch (Exception e){
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
-                    });
         }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
-    void getContacts(){
-        System.out.println("Response : ");
-        TreeSet<String> setAuteurs = new TreeSet<String>();
-        try {
-            JSONArray JsonMessageArray = new JSONArray(this.JsonMessages);
-            Database.getINSTANCE().setJsonMessageArray(JsonMessageArray);
-            for(int x = 0;x < JsonMessageArray.length(); x++){
-                JSONObject message = (JSONObject) JsonMessageArray.get(x);
-                setAuteurs.add(message.get("author").toString());
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            System.out.println("Envoie reussi");
+
+
+            if (response.isSuccessful()) {
+                try {
+                    String jsonData = response.body().string();
+                    Database.getINSTANCE().setJsonMessageArray(new JSONArray(jsonData));
+                    contacts = Database.getINSTANCE().getContacts();
+                    JsonMessages =  Database.getINSTANCE().getJsonMessageArray();
+                    System.out.println(contacts);
+                    populateRecycleView();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
             }
-            System.out.println(setAuteurs);
-            contacts = new ArrayList<>();
-            contacts.addAll(setAuteurs);
-            populateRecycleView();
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+    };
 
-
-    }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
