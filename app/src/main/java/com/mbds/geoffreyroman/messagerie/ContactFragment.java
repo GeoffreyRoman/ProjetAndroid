@@ -83,7 +83,6 @@ public class ContactFragment extends Fragment {
                     Database.getINSTANCE().setJsonMessageArray(new JSONArray(jsonData));
                     contacts = Database.getINSTANCE().getContacts();
                     JsonMessages =  Database.getINSTANCE().getJsonMessageArray();
-                    System.out.println(contacts);
                     populateRecycleView();
                 }
                 catch (Exception e){

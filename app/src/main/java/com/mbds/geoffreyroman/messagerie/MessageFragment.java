@@ -16,7 +16,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MessageFragment extends Fragment {
 
@@ -28,7 +33,6 @@ public class MessageFragment extends Fragment {
     EditText message;
     Button buttonSend;
     RecyclerView recyclerView;
-
 
     @Nullable
     @Override
@@ -72,12 +76,34 @@ public class MessageFragment extends Fragment {
         buttonSend.setOnClickListener(new View.OnClickListener() {
                                           @Override
                                           public void onClick(View view) {
-                                              //TODO envoie message
-                                          }
+
+                                              sendMessage();                                          }
                                       }
         );
 
     }
+
+    private void sendMessage(){
+
+        System.out.println(message.getText().toString());
+        Database.sendMessage(message.getText().toString(),contactName,clearMessageSent);
+    }
+
+    Callback clearMessageSent = new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+            e.printStackTrace();
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            System.out.println("Envoie reussi");
+
+
+            if (response.isSuccessful()) {
+            message.getText().clear();
+        }}
+    };
 
 
     private void getMessageFromContact(){
@@ -87,9 +113,7 @@ public class MessageFragment extends Fragment {
         for(int x = 0; x < listmsg.length(); x++){
             try {
                 JSONObject currentMsg = (JSONObject) listmsg.get(x);
-                System.out.println("Message courant : " + currentMsg +"\nNom du contact actuel : " + contactName );
                 if(currentMsg.getString("author").compareTo(contactName) == 0 ){
-                    System.out.println("id message : " + x);
 
                     messageList.add(currentMsg);
                 }
@@ -98,8 +122,6 @@ public class MessageFragment extends Fragment {
                 e.printStackTrace();
             }
         }
-        System.out.print("Liste message du contact : ");
-        System.out.println(messageList);
         recyclerView.setAdapter(new MyMessageAdapter(messageList));
 
     }

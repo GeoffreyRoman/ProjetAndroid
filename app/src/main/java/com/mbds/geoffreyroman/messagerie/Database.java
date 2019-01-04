@@ -85,6 +85,20 @@ public class Database implements Serializable {
         }
     }
 
+    public static void sendMessage(String message, String receiver, Callback callback){
+
+        String token = Database.getINSTANCE().userInfo.get("access_token");
+
+        ApiService api = new ApiService();
+        try{
+            api.sendMessage(token,message,receiver,callback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public JSONArray getJsonMessageArray() {
         return this.JsonMessageArray;
     }

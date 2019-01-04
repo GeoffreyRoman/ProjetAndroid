@@ -1,6 +1,9 @@
 package com.mbds.geoffreyroman.messagerie;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -49,6 +52,24 @@ public class ApiService {
                 .url(BASE_URL + "api/fetchMessages")
                 .addHeader("Authorization","Bearer " + token)
                 .get()
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(callback);
+        return call;
+    }
+
+    Call sendMessage(String token, String message, String receiver, Callback callback) throws IOException, JSONException {
+        JSONObject RequestBodyJson = new JSONObject();
+
+        RequestBodyJson.put("message",message);
+        RequestBodyJson.put("receiver",receiver);
+        System.out.println( RequestBodyJson.toString());
+
+        RequestBody body = RequestBody.create(JSON, RequestBodyJson.toString());
+        Request request = new Request.Builder()
+                .url(BASE_URL + "api/sendMsg")
+                .addHeader("Authorization","Bearer " + token)
+                .post(body)
                 .build();
         Call call = client.newCall(request);
         call.enqueue(callback);
