@@ -24,7 +24,6 @@ public class ApiService {
     OkHttpClient client = new OkHttpClient();
 
     Call createUser(String params, Callback callback) throws IOException {
-        System.out.println(params);
         RequestBody body = RequestBody.create(JSON, params);
         Request request = new Request.Builder()
                 .url(BASE_URL + "api/createUser")
@@ -36,7 +35,6 @@ public class ApiService {
     }
 
     Call login(String params, Callback callback) throws IOException {
-        System.out.println(params);
         RequestBody body = RequestBody.create(JSON, params);
         Request request = new Request.Builder()
                 .url(BASE_URL + "api/login")
@@ -63,7 +61,6 @@ public class ApiService {
 
         RequestBodyJson.put("message",message);
         RequestBodyJson.put("receiver",receiver);
-        System.out.println( RequestBodyJson.toString());
 
         RequestBody body = RequestBody.create(JSON, RequestBodyJson.toString());
         Request request = new Request.Builder()

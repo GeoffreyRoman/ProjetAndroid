@@ -69,7 +69,12 @@ public class MessageFragment extends Fragment {
         message = view.findViewById(R.id.editText);
         buttonSend = view.findViewById(R.id.buttonSend);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        LinearLayoutManager lLM = new LinearLayoutManager(view.getContext());
+        lLM.setReverseLayout(true);
+
+        recyclerView.setLayoutManager(lLM);
+
+
 
 
 
@@ -85,7 +90,6 @@ public class MessageFragment extends Fragment {
 
     private void sendMessage(){
 
-        System.out.println(message.getText().toString());
         Database.sendMessage(message.getText().toString(),contactName,clearMessageSent);
     }
 
@@ -106,24 +110,27 @@ public class MessageFragment extends Fragment {
     };
 
 
-    private void getMessageFromContact(){
+    private void getMessageFromContact() {
         JSONArray listmsg = Database.getINSTANCE().getJsonMessageArray();
         ArrayList<JSONObject> messageList = new ArrayList<JSONObject>();
 
-        for(int x = 0; x < listmsg.length(); x++){
-            try {
-                JSONObject currentMsg = (JSONObject) listmsg.get(x);
-                if(currentMsg.getString("author").compareTo(contactName) == 0 ){
+        if (contactName != null) {
 
-                    messageList.add(currentMsg);
+            for (int x = 0; x < listmsg.length(); x++) {
+                try {
+                    JSONObject currentMsg = (JSONObject) listmsg.get(x);
+                    if (currentMsg.getString("author").compareTo(contactName) == 0) {
+
+                        messageList.add(currentMsg);
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
-        }
-        recyclerView.setAdapter(new MyMessageAdapter(messageList));
+            recyclerView.setAdapter(new MyMessageAdapter(messageList));
 
+        }
     }
 
     public void setText(String txt)

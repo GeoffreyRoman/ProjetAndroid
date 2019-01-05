@@ -1,13 +1,20 @@
-package com.mbds.geoffreyroman.messagerie;
+package com.mbds.geoffreyroman.messagerie;;
 
+import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.support.annotation.RequiresApi;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.UnrecoverableEntryException;
@@ -19,104 +26,85 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 public class Crypto {
-
-
-    byte[] encryptedBytes;
-    String transformation = "RSA/ECB/PKCS1Padding";
     String provider = "AndroidKeyStore";
-    String plain = "Message";
+    String transformation = "RSA/ECB/PKCS1Padding";
+    KeyPair kp;
 
-    public void crypt() {
-        KeyPairGenerator kpg = null;
-        try {
-            kpg = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        kpg.initialize(2048);
-        KeyPair kp = kpg.genKeyPair();
-        PublicKey publicKey = kp.getPublic();
-        PrivateKey privateKey = kp.getPrivate();
-
-        KeyStore keyStore = null;
-        try {
-            keyStore = KeyStore.getInstance(provider);
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-        try {
-            keyStore.load(null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            KeyStore.Entry entry = keyStore.getEntry("toto", null);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableEntryException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            publicKey = keyStore.getCertificate("toto").getPublicKey();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-
-        Cipher cipher1 = null;
-        try {
-            cipher1 = Cipher.getInstance(transformation);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-        try {
-            cipher1.init(Cipher.DECRYPT_MODE, privateKey);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-
-        byte[] decryptedBytes = new byte[0];
-        try {
-            decryptedBytes = cipher1.doFinal(encryptedBytes);
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-        String decrypted = new String(decryptedBytes);
-
-        System.out.println("Déchiffré :  + decrypted");
-
-        Cipher cipher = null;
-        try {
-            cipher = Cipher.getInstance(transformation);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        }
-        try {
-            encryptedBytes = cipher.doFinal(plain.getBytes());
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Chiffré : " + new String(encryptedBytes));
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public Crypto(String alias) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, UnsupportedEncodingException {
+        generateKey(alias);
 
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void generateKey(String alias) throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA", provider);
+        KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(alias,
+                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_ECB)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1);
+        kpg.initialize(builder.build());
+        kp = kpg.genKeyPair();
+    }
+
+
+        @RequiresApi(api = Build.VERSION_CODES.M)
+    public PublicKey getPublicKey(String alias) throws CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableEntryException, NoSuchProviderException, InvalidAlgorithmParameterException, KeyStoreException {
+        KeyStore keyStore = KeyStore.getInstance(provider);
+        keyStore.load(null);
+        KeyStore.Entry entry = null;
+        try {
+            entry = keyStore.getEntry(alias, null);
+        } catch (KeyStoreException e) {
+            generateKey(alias);
+            entry = keyStore.getEntry(alias, null);
+        } catch (UnrecoverableEntryException e) {
+             generateKey(alias);
+             entry = keyStore.getEntry(alias, null);
+        }
+
+        PublicKey publicKey = keyStore.getCertificate(alias).getPublicKey();
+        return publicKey;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public PrivateKey getPrivatKey(String alias) throws CertificateException, NoSuchAlgorithmException, IOException, KeyStoreException, UnrecoverableEntryException, NoSuchProviderException, InvalidAlgorithmParameterException {
+        KeyStore keyStore = KeyStore.getInstance(provider);
+        keyStore.load(null);
+        KeyStore.Entry entry = null;
+        try {
+            entry = keyStore.getEntry(alias, null);
+        } catch (KeyStoreException e) {
+            generateKey(alias);
+            entry = keyStore.getEntry(alias, null);
+        } catch (UnrecoverableEntryException e) {
+            generateKey(alias);
+            entry = keyStore.getEntry(alias, null);
+        }
+
+        PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
+        return privateKey;
+    }
+
+    public byte[] crypte(String str) throws UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance(transformation);
+        cipher.init(Cipher.ENCRYPT_MODE, kp.getPublic());
+        byte[] encryptedBytes = cipher.doFinal(str.getBytes());
+
+        return encryptedBytes;
+    }
+
+
+    public String decrypte(byte[] str) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
+        byte[] encryptedBytes = str;
+        Cipher cipher = Cipher.getInstance(transformation);
+        cipher.init(Cipher.DECRYPT_MODE, kp.getPrivate());
+        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+        String decrypted = new String(decryptedBytes);
+
+        return decrypted;
+    }
+
+
+
 }

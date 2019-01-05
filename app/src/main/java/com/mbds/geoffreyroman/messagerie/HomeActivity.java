@@ -61,12 +61,8 @@ public class HomeActivity extends AppCompatActivity implements iCallable{
         }
 
         //Database database = (Database) intent.getSerializableExtra("database");
-        System.out.println("USERNAME : -----> ");
         String username = Database.getINSTANCE().userInfo.get("username");
-        System.out.println(username);
-        System.out.println("Token : -----> ");
         String token = Database.getINSTANCE().userInfo.get("access_token");
-        System.out.println(token);
 
 
 

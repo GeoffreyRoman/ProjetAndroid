@@ -2,6 +2,8 @@ package com.mbds.geoffreyroman.messagerie;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +17,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -84,10 +97,37 @@ public class LoginActivity extends AppCompatActivity {
                         toast.show();
                     }
 
+                    @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        System.out.println("GOOOOD");
-                        System.out.println(response);
+                        try {
+
+                            Crypto c = new Crypto("alias");
+                            c.getPublicKey("alias");
+                            byte[] messageCrypte = c.crypte("Message a crypter");
+                            c.decrypte(messageCrypte);
+
+                        } catch (NoSuchAlgorithmException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchPaddingException e) {
+                            e.printStackTrace();
+                        } catch (InvalidKeyException e) {
+                            e.printStackTrace();
+                        } catch (BadPaddingException e) {
+                            e.printStackTrace();
+                        } catch (IllegalBlockSizeException e) {
+                            e.printStackTrace();
+                        } catch (InvalidAlgorithmParameterException e) {
+                            e.printStackTrace();
+                        } catch (NoSuchProviderException e) {
+                            e.printStackTrace();
+                        } catch (CertificateException e) {
+                            e.printStackTrace();
+                        } catch (KeyStoreException e) {
+                            e.printStackTrace();
+                        } catch (UnrecoverableEntryException e) {
+                            e.printStackTrace();
+                        }
 
                         if (response.isSuccessful()) {
                             try {

@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.provider.BaseColumns;
+import android.support.annotation.RequiresApi;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,15 +14,75 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.TreeSet;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
 public class Database implements Serializable {
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void newContact(String s, Callback callback) {
+        ApiService api = new ApiService();
+        UserInfo currentUserInfo = Database.getINSTANCE().userInfo;
+        String username = currentUserInfo.get("username");
+        String token = currentUserInfo.get("access_token");
+        String message;
+
+        try {
+            Crypto c = new Crypto(username);
+            c.getPublicKey(username);
+            message = "publickey=" + Arrays.toString(c.getPublicKey(username).getEncoded());
+
+            api.sendMessage(token, s, message,callback);
+
+
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (NoSuchProviderException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableEntryException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 
     public static class UserInfo {
         JSONObject userInfoJson;
@@ -49,7 +111,6 @@ public class Database implements Serializable {
 
 
     public ArrayList<String> getContacts(){
-        System.out.println("Response : ");
         TreeSet<String> setAuteurs = new TreeSet<String>();
         try {
             Database.getINSTANCE().setJsonMessageArray(JsonMessageArray);
@@ -57,7 +118,6 @@ public class Database implements Serializable {
                 JSONObject message = (JSONObject) JsonMessageArray.get(x);
                 setAuteurs.add(message.get("author").toString());
             }
-            System.out.println(setAuteurs);
             ArrayList<String> contacts = new ArrayList<>();
             contacts.addAll(setAuteurs);
 
@@ -129,7 +189,7 @@ public class Database implements Serializable {
         return INSTANCE;
     }
 
-    public final class User {
+    /*public final class User {
         private User() {
         }
 
@@ -140,7 +200,7 @@ public class Database implements Serializable {
             public static final String COLUMN_NAME_LOGIN = "login";
             public static final String COLUMN_NAME_PASSWORD = "Password";
         }
-    }
+    }*/
 
 
     public final class ContactContract {
@@ -150,11 +210,13 @@ public class Database implements Serializable {
         public class FeedContact implements BaseColumns {
             public static final String TABLE_NAME = "Contact";
             public static final String COLUMN_NAME_LASTNAME = "Nom";
-            public static final String COLUMN_NAME_FIRSTNAME = "Prenom";
+            public static final String COLUMN_NAME_CLEPUBLIC = "Clepublic";
+            public static final String COLUMN_NAME_CLEPRIVE = "Cleprivee";
+
         }
     }
 
-    public void addPerson(String name, String lname) {
+    public void addPerson(String name, String clepublic, String cleprive) {
         // Gets the data repository in write mode
         ContactHelper mDbHelper = new ContactHelper(ctx);
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -162,7 +224,8 @@ public class Database implements Serializable {
 // Create a new map of values, where column names are the keys
         ContentValues values = new ContentValues();
         values.put(ContactContract.FeedContact.COLUMN_NAME_LASTNAME, name);
-        values.put(ContactContract.FeedContact.COLUMN_NAME_FIRSTNAME, lname);
+        values.put(ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC, clepublic);
+        values.put(ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE, cleprive);
 
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert(ContactContract.FeedContact.TABLE_NAME, null, values);
@@ -175,7 +238,9 @@ public class Database implements Serializable {
         String[] projection = {
                 BaseColumns._ID,
                 ContactContract.FeedContact.COLUMN_NAME_LASTNAME,
-                ContactContract.FeedContact.COLUMN_NAME_FIRSTNAME
+                ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC,
+                ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE
+
         };
 
 
@@ -199,8 +264,10 @@ public class Database implements Serializable {
         while (cursor.moveToNext()) {
             long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(ContactContract.FeedContact._ID));
             String nom = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_LASTNAME));
-            String prenom = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_FIRSTNAME));
-            persons.add(new Person(nom, prenom));
+            String clepublic = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC));
+            String cleprive = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE));
+
+            persons.add(new Person(nom, clepublic,cleprive));
         }
         cursor.close();
 

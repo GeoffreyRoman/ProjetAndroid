@@ -12,12 +12,15 @@ public class ContactHelper extends SQLiteOpenHelper {
             "CREATE TABLE " + Database.ContactContract.FeedContact.TABLE_NAME + " (" +
                     Database.ContactContract.FeedContact._ID + " INTEGER PRIMARY KEY," +
                     Database.ContactContract.FeedContact.COLUMN_NAME_LASTNAME + " TEXT," +
-                    Database.ContactContract.FeedContact.COLUMN_NAME_FIRSTNAME + " TEXT)";
+                    Database.ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE + " TEXT ," +
+                    Database.ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC + " TEXT)";
 
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + Database.ContactContract.FeedContact.TABLE_NAME;
     // If you change the database schema, you must increment the database version.
-    public static final int DATABASE_VERSION = 1;
+
+    public static final int DATABASE_VERSION = 2;
+
     public static final String DATABASE_NAME = "ContactDb.db";
 
     public ContactHelper(Context context){

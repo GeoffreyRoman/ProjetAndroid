@@ -85,8 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        System.out.println("GOOOOD");
-                        System.out.println(response);
+
 
                         if (response.isSuccessful()) {
                             String responseStr = response.body().string();

@@ -6,9 +6,11 @@ package com.mbds.geoffreyroman.messagerie;
         import android.content.Intent;
         import android.content.res.Configuration;
         import android.graphics.Color;
+        import android.os.Build;
         import android.os.Bundle;
         import android.provider.ContactsContract;
         import android.support.annotation.Nullable;
+        import android.support.annotation.RequiresApi;
         import android.support.v7.app.AppCompatActivity;
         import android.support.v7.widget.LinearLayoutManager;
         import android.support.v7.widget.RecyclerView;
@@ -17,6 +19,7 @@ package com.mbds.geoffreyroman.messagerie;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.Button;
+        import android.widget.EditText;
         import android.widget.TextView;
 
         import org.json.JSONArray;
@@ -39,6 +42,8 @@ public class ContactFragment extends Fragment {
     iCallable mCallback;
     Button changeTextButton;
     JSONArray JsonMessages;
+    EditText nouveauContact;
+    Button ajouterContact;
 
 
 
@@ -65,6 +70,7 @@ public class ContactFragment extends Fragment {
 
 
 
+
         Callback initialiseContacts = new Callback() {
         @Override
         public void onFailure(Call call, IOException e) {
@@ -74,7 +80,6 @@ public class ContactFragment extends Fragment {
 
         @Override
         public void onResponse(Call call, Response response) throws IOException {
-            System.out.println("Envoie reussi");
 
 
             if (response.isSuccessful()) {
@@ -97,10 +102,50 @@ public class ContactFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        nouveauContact = (EditText) view.findViewById(R.id.nouveauContact);
+
+        nouveauContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nouveauContact.getText().clear();
+            }
+        });
+
+        ajouterContact = (Button) view.findViewById(R.id.ajouterContact);
+        final String nomNouveauContact = nouveauContact.getText().toString();
+
+
+        ajouterContact.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View view) {
+
+
+                Callback callback = new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        mCallback.afficheMessage(nomNouveauContact);
+                    }
+                };
+
+                Database.getINSTANCE().newContact(nomNouveauContact,callback);
+                System.out.println(nouveauContact.getText().toString());
+            }
+        });
+
+
+
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
 
         //définit l'agencement des cellules, ici de façon verticale, comme une ListView
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
+        recyclerView.setAdapter(new MyAdapter(contacts));
 
         //pour adapter en grille comme une RecyclerView, avec 2 cellules par ligne
         //recyclerView.setLayoutManager(new GridLayoutManager(this,2));
@@ -113,7 +158,6 @@ public class ContactFragment extends Fragment {
     }
 
     void populateRecycleView(){
-        recyclerView.setAdapter(new MyAdapter(contacts));
 
 
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
@@ -127,7 +171,10 @@ public class ContactFragment extends Fragment {
                 }
 
                 else {
-                    mCallback.transferData(contacts.get(pos));
+                    if(pos < contacts.size() && pos >= 0) {
+                        String contact = contacts.get(pos);
+                        mCallback.afficheMessage(contact);
+                    }
                 }
                 return false;
             }

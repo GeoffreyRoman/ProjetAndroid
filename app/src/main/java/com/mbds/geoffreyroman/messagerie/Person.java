@@ -2,11 +2,15 @@ package com.mbds.geoffreyroman.messagerie;
 
 class Person {
     private String nom;
-    private String prenom;
+    private String cleprive;
+    private String clepublic;
 
-    public Person(String nom, String prenom) {
+
+
+    public Person(String nom, String cleprive, String clepublic) {
         this.nom = nom;
-        this.prenom = prenom;
+        this.cleprive = cleprive;
+        this.clepublic = clepublic;
     }
 
     public String getNom() {
@@ -17,11 +21,20 @@ class Person {
         this.nom = nom;
     }
 
-    public String getPrenom() {
-        return prenom;
+    public String getCleprive() {
+        return cleprive;
     }
 
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
+    public void setCleprive(String cleprive) {
+        this.cleprive = cleprive;
     }
+
+    public String getClepublic() {
+        return clepublic;
+    }
+
+    public void setClepublic(String clepublic) {
+        this.clepublic = clepublic;
+    }
+
 }
