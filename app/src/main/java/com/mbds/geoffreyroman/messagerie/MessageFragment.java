@@ -109,7 +109,11 @@ public class MessageFragment extends Fragment {
 
 
             if (response.isSuccessful()) {
-            //message.getText().clear();
+                getActivity().runOnUiThread(new Runnable() {
+                    public void run() {
+                        message.getText().clear();
+                    }
+                });
         }}
     };
 
