@@ -159,25 +159,26 @@ public class ContactFragment extends Fragment {
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                View child = rv.findChildViewUnder(e.getX(), e.getY());
-                int pos = rv.getChildAdapterPosition(child);
-                int display_mode = getResources().getConfiguration().orientation;
-                if (display_mode == Configuration.ORIENTATION_PORTRAIT) {
-                    mCallback.afficheMessage(contacts.get(pos));
-                }
-
-                else {
-                    if(pos < contacts.size() && pos >= 0) {
-                        String contact = contacts.get(pos);
-                        mCallback.afficheMessage(contact);
+                if( e.getAction() == MotionEvent.ACTION_UP) {
+                    View child = rv.findChildViewUnder(e.getX(), e.getY());
+                    int pos = rv.getChildAdapterPosition(child);
+                    int display_mode = getResources().getConfiguration().orientation;
+                    if (display_mode == Configuration.ORIENTATION_PORTRAIT) {
+                        mCallback.afficheMessage(contacts.get(pos));
+                    } else {
+                        if (pos < contacts.size() && pos >= 0) {
+                            String contact = contacts.get(pos);
+                            mCallback.afficheMessage(contact);
+                        }
                     }
+
+                    return true;
                 }
                 return false;
             }
 
             @Override
             public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-
             }
 
             @Override
