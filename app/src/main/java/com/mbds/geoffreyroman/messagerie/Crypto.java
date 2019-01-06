@@ -33,7 +33,6 @@ public class Crypto {
     @RequiresApi(api = Build.VERSION_CODES.M)
     public Crypto(String alias) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, UnsupportedEncodingException {
         generateKey(alias);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -53,17 +52,14 @@ public class Crypto {
         KeyStore keyStore = KeyStore.getInstance(provider);
         keyStore.load(null);
         KeyStore.Entry entry = null;
-        try {
-            entry = keyStore.getEntry(alias, null);
-        } catch (KeyStoreException e) {
-            generateKey(alias);
-            entry = keyStore.getEntry(alias, null);
-        } catch (UnrecoverableEntryException e) {
-             generateKey(alias);
-             entry = keyStore.getEntry(alias, null);
+        PublicKey publicKey = null;
+        if(keyStore.containsAlias(alias)) {
+            publicKey = keyStore.getCertificate(alias).getPublicKey();
+        }
+        else{
+            kp.getPublic();
         }
 
-        PublicKey publicKey = keyStore.getCertificate(alias).getPublicKey();
         return publicKey;
     }
 
@@ -72,30 +68,38 @@ public class Crypto {
         KeyStore keyStore = KeyStore.getInstance(provider);
         keyStore.load(null);
         KeyStore.Entry entry = null;
+
         try {
-            entry = keyStore.getEntry(alias, null);
-        } catch (KeyStoreException e) {
-            generateKey(alias);
-            entry = keyStore.getEntry(alias, null);
+
+            if (keyStore.containsAlias(alias)) {
+                entry = keyStore.getEntry(alias, null);
+
+            } else {
+                generateKey(alias);
+                entry = keyStore.getEntry(alias, null);
+            }
+        }
+         catch (KeyStoreException e) {
+
         } catch (UnrecoverableEntryException e) {
-            generateKey(alias);
-            entry = keyStore.getEntry(alias, null);
+
         }
 
         PrivateKey privateKey = ((KeyStore.PrivateKeyEntry) entry).getPrivateKey();
         return privateKey;
     }
 
-    public byte[] crypte(String str) throws UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public byte[] crypte(String str, String contact) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, CertificateException, InvalidAlgorithmParameterException, KeyStoreException, NoSuchProviderException, UnrecoverableEntryException {
         Cipher cipher = Cipher.getInstance(transformation);
-        cipher.init(Cipher.ENCRYPT_MODE, kp.getPublic());
+        cipher.init(Cipher.ENCRYPT_MODE, getPublicKey(contact));
         byte[] encryptedBytes = cipher.doFinal(str.getBytes());
 
         return encryptedBytes;
     }
 
 
-    public String decrypte(byte[] str) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
+    public String decrypte(byte[] str, String Contact) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException, BadPaddingException, IllegalBlockSizeException {
         byte[] encryptedBytes = str;
         Cipher cipher = Cipher.getInstance(transformation);
         cipher.init(Cipher.DECRYPT_MODE, kp.getPrivate());

@@ -2,14 +2,12 @@ package com.mbds.geoffreyroman.messagerie;
 
 class Person {
     private String nom;
-    private String cleprive;
     private String clepublic;
 
 
 
-    public Person(String nom, String cleprive, String clepublic) {
+    public Person(String nom, String clepublic) {
         this.nom = nom;
-        this.cleprive = cleprive;
         this.clepublic = clepublic;
     }
 
@@ -19,14 +17,6 @@ class Person {
 
     public void setNom(String nom) {
         this.nom = nom;
-    }
-
-    public String getCleprive() {
-        return cleprive;
-    }
-
-    public void setCleprive(String cleprive) {
-        this.cleprive = cleprive;
     }
 
     public String getClepublic() {

@@ -89,6 +89,7 @@ public class ContactFragment extends Fragment {
                     contacts = Database.getINSTANCE().getContacts();
                     JsonMessages =  Database.getINSTANCE().getJsonMessageArray();
                     populateRecycleView();
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -111,8 +112,9 @@ public class ContactFragment extends Fragment {
             }
         });
 
+
         ajouterContact = (Button) view.findViewById(R.id.ajouterContact);
-        final String nomNouveauContact = nouveauContact.getText().toString();
+        String nomNouveauContact = nouveauContact.getText().toString();
 
 
         ajouterContact.setOnClickListener(new View.OnClickListener() {
@@ -129,35 +131,29 @@ public class ContactFragment extends Fragment {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        mCallback.afficheMessage(nomNouveauContact);
+                        mCallback.afficheMessage(nouveauContact.getText().toString());
                     }
                 };
 
-                Database.getINSTANCE().newContact(nomNouveauContact,callback);
+                Database.getINSTANCE().newContact(nouveauContact.getText().toString(),callback);
                 System.out.println(nouveauContact.getText().toString());
             }
         });
 
 
-
         recyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
 
-        //définit l'agencement des cellules, ici de façon verticale, comme une ListView
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
         recyclerView.setAdapter(new MyAdapter(contacts));
-
-        //pour adapter en grille comme une RecyclerView, avec 2 cellules par ligne
-        //recyclerView.setLayoutManager(new GridLayoutManager(this,2));
-
-        //puis créer un MyAdapter, lui fournir notre liste de villes.
-        //cet adapter servira à remplir notre recyclerview
 
 
 
     }
 
     void populateRecycleView(){
+
+        recyclerView.setAdapter(new MyAdapter(contacts));
 
 
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {

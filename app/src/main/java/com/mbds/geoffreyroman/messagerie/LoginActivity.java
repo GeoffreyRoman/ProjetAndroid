@@ -84,6 +84,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     void login() {
+        System.out.println("oerojrefergkpzekfpzefkzepofzepof");
         db.checkUser(usernameEditText.getText().toString(), passwordEditText.getText().toString(),
                 new Callback() {
                     @Override
@@ -104,8 +105,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             Crypto c = new Crypto("alias");
                             c.getPublicKey("alias");
-                            byte[] messageCrypte = c.crypte("Message a crypter");
-                            c.decrypte(messageCrypte);
+
 
                         } catch (NoSuchAlgorithmException e) {
                             e.printStackTrace();

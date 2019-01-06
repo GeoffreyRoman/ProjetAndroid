@@ -122,6 +122,7 @@ public class Database implements Serializable {
             contacts.addAll(setAuteurs);
 
 
+
             return contacts;
 
 
@@ -145,18 +146,22 @@ public class Database implements Serializable {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public static void sendMessage(String message, String receiver, Callback callback){
 
         String token = Database.getINSTANCE().userInfo.get("access_token");
 
         ApiService api = new ApiService();
-        try{
+
+
+        try {
             api.sendMessage(token,message,receiver,callback);
-        } catch (JSONException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+
     }
 
     public JSONArray getJsonMessageArray() {
@@ -211,12 +216,11 @@ public class Database implements Serializable {
             public static final String TABLE_NAME = "Contact";
             public static final String COLUMN_NAME_LASTNAME = "Nom";
             public static final String COLUMN_NAME_CLEPUBLIC = "Clepublic";
-            public static final String COLUMN_NAME_CLEPRIVE = "Cleprivee";
 
         }
     }
 
-    public void addPerson(String name, String clepublic, String cleprive) {
+    public void addPerson(String name, String clepublic) {
         // Gets the data repository in write mode
         ContactHelper mDbHelper = new ContactHelper(ctx);
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -225,7 +229,7 @@ public class Database implements Serializable {
         ContentValues values = new ContentValues();
         values.put(ContactContract.FeedContact.COLUMN_NAME_LASTNAME, name);
         values.put(ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC, clepublic);
-        values.put(ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE, cleprive);
+
 
 // Insert the new row, returning the primary key value of the new row
         long newRowId = db.insert(ContactContract.FeedContact.TABLE_NAME, null, values);
@@ -238,8 +242,7 @@ public class Database implements Serializable {
         String[] projection = {
                 BaseColumns._ID,
                 ContactContract.FeedContact.COLUMN_NAME_LASTNAME,
-                ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC,
-                ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE
+                ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC
 
         };
 
@@ -265,9 +268,8 @@ public class Database implements Serializable {
             long itemId = cursor.getLong(cursor.getColumnIndexOrThrow(ContactContract.FeedContact._ID));
             String nom = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_LASTNAME));
             String clepublic = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_CLEPUBLIC));
-            String cleprive = cursor.getString(cursor.getColumnIndex(ContactContract.FeedContact.COLUMN_NAME_CLEPRIVE));
 
-            persons.add(new Person(nom, clepublic,cleprive));
+            persons.add(new Person(nom, clepublic));
         }
         cursor.close();
 

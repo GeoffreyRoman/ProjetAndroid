@@ -1,8 +1,10 @@
 package com.mbds.geoffreyroman.messagerie;
 
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -79,6 +81,7 @@ public class MessageFragment extends Fragment {
 
 
         buttonSend.setOnClickListener(new View.OnClickListener() {
+                                          @RequiresApi(api = Build.VERSION_CODES.M)
                                           @Override
                                           public void onClick(View view) {
 
@@ -88,6 +91,7 @@ public class MessageFragment extends Fragment {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void sendMessage(){
 
         Database.sendMessage(message.getText().toString(),contactName,clearMessageSent);
@@ -105,7 +109,7 @@ public class MessageFragment extends Fragment {
 
 
             if (response.isSuccessful()) {
-            message.getText().clear();
+            //message.getText().clear();
         }}
     };
 
